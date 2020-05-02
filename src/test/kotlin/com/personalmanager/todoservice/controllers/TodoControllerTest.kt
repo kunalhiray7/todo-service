@@ -1,5 +1,6 @@
 package com.personalmanager.todoservice.controllers
 
+import com.personalmanager.todoservice.controllers.MessageConverter.jacksonDateTimeConverter
 import com.personalmanager.todoservice.dtos.TaskRequest
 import com.personalmanager.todoservice.services.TodoService
 import com.personalmanager.todoservice.utils.ObjectMapperUtil.getObjectMapper
@@ -31,7 +32,7 @@ class TodoControllerTest {
 
     @BeforeEach
     internal fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(todoController).build()
+        mockMvc = MockMvcBuilders.standaloneSetup(todoController).setMessageConverters(jacksonDateTimeConverter()).build()
     }
 
     @Test
@@ -51,5 +52,21 @@ class TodoControllerTest {
                 .andExpect(content().string(mapper.writeValueAsString(task)))
 
         verify(todoService, times(1)).create(taskRequest)
+    }
+
+    @Test
+    fun `POST should return BAD_REQUEST when task request is not valid`() {
+        val taskRequest = TaskRequest(
+                title = "",
+                description = "Check and pay monthly phone bill",
+                userId = 123L
+        )
+
+        mockMvc.perform(post("/api/todos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(taskRequest)))
+                .andExpect(status().isBadRequest)
+
+        verifyNoMoreInteractions(todoService)
     }
 }

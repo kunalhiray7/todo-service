@@ -1,5 +1,6 @@
 package com.personalmanager.todoservice.domain
 
+import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -26,5 +27,5 @@ data class Task(
         val status: TodoStatus = TodoStatus.PENDING,
 
         @get: NotNull
-        val createdAt: ZonedDateTime = ZonedDateTime.now()
+        val createdAt: ZonedDateTime = ZonedDateTime.now(UTC)
 )

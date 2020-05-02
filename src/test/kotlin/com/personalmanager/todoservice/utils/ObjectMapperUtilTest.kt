@@ -14,4 +14,13 @@ class ObjectMapperUtilTest {
 
         assertTrue(registeredModuleIds.contains("com.fasterxml.jackson.module.kotlin.KotlinModule"))
     }
+
+    @Test
+    fun `objectMapper should have Java Time module`() {
+        val objectMapper = getObjectMapper()
+
+        val registeredModuleIds = objectMapper.registeredModuleIds
+
+        assertTrue(registeredModuleIds.contains("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"))
+    }
 }
