@@ -1,6 +1,8 @@
 package com.personalmanager.todoservice.controllers
 
 import com.personalmanager.todoservice.controllers.MessageConverter.jacksonDateTimeConverter
+import com.personalmanager.todoservice.domain.Task
+import com.personalmanager.todoservice.domain.TodoStatus
 import com.personalmanager.todoservice.dtos.TaskRequest
 import com.personalmanager.todoservice.services.TodoService
 import com.personalmanager.todoservice.utils.ObjectMapperUtil.getObjectMapper
@@ -12,10 +14,13 @@ import org.mockito.Mockito.*
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import java.time.ZoneOffset.UTC
+import java.time.ZonedDateTime
 
 @SpringBootTest
 class TodoControllerTest {
@@ -46,8 +51,8 @@ class TodoControllerTest {
         doReturn(task).`when`(todoService).create(taskRequest)
 
         mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(taskRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(taskRequest)))
                 .andExpect(status().isCreated)
                 .andExpect(content().string(mapper.writeValueAsString(task)))
 
@@ -69,4 +74,36 @@ class TodoControllerTest {
 
         verifyNoMoreInteractions(todoService)
     }
+
+    @Test
+    fun `GET should return all the todos for the given user`() {
+        // given
+        val userId = 123L
+
+        val todos = listOf(Task(
+                id = 1234L,
+                title = "pay bill",
+                description = "pay phone bill",
+                userId = userId,
+                status = TodoStatus.PENDING,
+                createdAt = ZonedDateTime.now(UTC)
+        ),
+                Task(
+                        id = 1235L,
+                        title = "learn Go",
+                        description = "watch videos and perform exercise",
+                        userId = userId,
+                        status = TodoStatus.PENDING,
+                        createdAt = ZonedDateTime.now(UTC).plusDays(1)
+                ))
+        doReturn(todos).`when`(todoService).getForUser(userId)
+
+        // when
+        mockMvc.perform(get("/api/todos/users/$userId"))
+                .andExpect(status().isOk)
+                .andExpect(content().string(mapper.writeValueAsString(todos)))
+
+        verify(todoService, times(1)).getForUser(userId)
+    }
+
 }

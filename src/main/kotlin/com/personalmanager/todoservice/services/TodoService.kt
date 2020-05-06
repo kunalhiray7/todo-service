@@ -9,4 +9,6 @@ class TodoService(private val todoRepository: TodoRepository) {
 
     fun create(taskRequest: TaskRequest) = todoRepository.save(taskRequest.toDomain())
 
+    fun getForUser(userId: Long) = todoRepository.findByUserId(userId)
+
 }
