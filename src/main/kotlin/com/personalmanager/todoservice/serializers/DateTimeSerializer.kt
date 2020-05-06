@@ -7,6 +7,6 @@ import java.time.ZonedDateTime
 
 class DateTimeSerializer: JsonSerializer<ZonedDateTime>() {
     override fun serialize(value: ZonedDateTime?, gen: JsonGenerator?, serializers: SerializerProvider?) {
-        gen?.writeString(ZonedDateTime.parse(value?.toString()).toString())
+        gen?.writeString(value?.toString())
     }
 }
