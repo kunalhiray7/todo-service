@@ -17,4 +17,7 @@ class TodoController(private val todoService: TodoService) {
 
     @GetMapping("/api/todos/users/{userId}")
     fun getForUser(@PathVariable("userId") userId: Long) = todoService.getForUser(userId)
+
+    @PutMapping("/api/todos/{todoId}/star")
+    fun markStar(@PathVariable("todoId") todoId: Long) = todoService.markStar(todoId)
 }

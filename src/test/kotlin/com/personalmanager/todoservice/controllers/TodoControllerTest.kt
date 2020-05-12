@@ -14,8 +14,7 @@ import org.mockito.Mockito.*
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -106,4 +105,25 @@ class TodoControllerTest {
         verify(todoService, times(1)).getForUser(userId)
     }
 
+    @Test
+    fun `PUT should star the todo for the given user`() {
+        val todoId = 234L
+        val modifiedTodo = Task(
+                id = todoId,
+                title = "pay bill",
+                description = "pay phone bill",
+                userId = 123L,
+                status = TodoStatus.PENDING,
+                createdAt = ZonedDateTime.now(UTC)
+        )
+        doReturn(modifiedTodo).`when`(todoService).markStar(todoId)
+
+        // when
+        mockMvc.perform(put("/api/todos/$todoId/star"))
+                .andExpect(status().isOk)
+                .andExpect(content().string(mapper.writeValueAsString(modifiedTodo)))
+
+        verify(todoService, times(1)).markStar(todoId)
+
+    }
 }
